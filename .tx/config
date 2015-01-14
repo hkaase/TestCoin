@@ -1,0 +1,7 @@
+[main]
+host = https://www.transifex.com
+
+[Testcoin.qt-translation-010x]
+file_filter = src/qt/locale/Testcoin_<lang>.ts
+source_file = src/qt/locale/Testcoin_en.ts
+source_lang = en

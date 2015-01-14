@@ -1,0 +1,86 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/Testcoin/.Testcoin" ]; then
+	TestcoinD_DEFAULT_DATADIR="/var/lib/Testcoin/.Testcoin"
+else
+	TestcoinD_DEFAULT_DATADIR="/var/lib/Testcoind"
+fi
+
+TestcoinD_CONFIGFILE=${TestcoinD_CONFIGFILE:-/etc/Testcoin/Testcoin.conf}
+TestcoinD_PIDDIR=${TestcoinD_PIDDIR:-/var/run/Testcoind}
+TestcoinD_PIDFILE=${TestcoinD_PIDFILE:-${TestcoinD_PIDDIR}/Testcoind.pid}
+TestcoinD_DATADIR=${TestcoinD_DATADIR:-${TestcoinD_DEFAULT_DATADIR}}
+TestcoinD_USER=${TestcoinD_USER:-Testcoin}
+TestcoinD_GROUP=${TestcoinD_GROUP:-Testcoin}
+TestcoinD_BIN=${TestcoinD_BIN:-/usr/bin/Testcoind}
+
+name="Testcoin Core Daemon"
+description="Testcoin crypto-currency p2p network daemon"
+
+command="/usr/bin/Testcoind"
+command_args="-pid=\"${TestcoinD_PIDFILE}\" \
+		-conf=\"${TestcoinD_CONFIGFILE}\" \
+		-datadir=\"${TestcoinD_DATADIR}\" \
+		-daemon \
+		${TestcoinD_OPTS}"
+
+required_files="${TestcoinD_CONFIGFILE}"
+start_stop_daemon_args="-u ${TestcoinD_USER} \
+			-N ${TestcoinD_NICE:-0} -w 2000"
+pidfile="${TestcoinD_PIDFILE}"
+retry=60
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${TestcoinD_USER}:${TestcoinD_GROUP}" \
+	"${TestcoinD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${TestcoinD_USER}:${TestcoinD_GROUP}" \
+	"${TestcoinD_PIDDIR}"
+
+	checkpath -f \
+	-o ${TestcoinD_USER}:${TestcoinD_GROUP} \
+	-m 0660 \
+	${TestcoinD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${TestcoinD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run Testcoind."
+		eerror "The setting must appear in ${TestcoinD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Testcoin Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

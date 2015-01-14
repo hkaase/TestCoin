@@ -1,0 +1,22 @@
+[Unit]
+Description=Testcoin's distributed currency daemon
+After=network.target
+
+[Service]
+User=Testcoin
+Group=Testcoin
+
+Type=forking
+PIDFile=/var/lib/Testcoind/Testcoind.pid
+ExecStart=/usr/bin/Testcoind -daemon -pid=/var/lib/Testcoind/Testcoind.pid \
+-conf=/etc/Testcoin/Testcoin.conf -datadir=/var/lib/Testcoind -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

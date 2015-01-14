@@ -1,0 +1,27 @@
+# /etc/conf.d/Testcoind: config file for /etc/init.d/Testcoind
+
+# Config file location
+#TestcoinD_CONFIGFILE="/etc/Testcoin/Testcoin.conf"
+
+# What directory to write pidfile to?  (created and owned by $TestcoinD_USER)
+#TestcoinD_PIDDIR="/var/run/Testcoind"
+
+# What filename to give the pidfile
+#TestcoinD_PIDFILE="${TestcoinD_PIDDIR}/Testcoind.pid"
+
+# Where to write Testcoind data (be mindful that the blockchain is large)
+#TestcoinD_DATADIR="/var/lib/Testcoind"
+
+# User and group to own Testcoind process
+#TestcoinD_USER="Testcoin"
+#TestcoinD_GROUP="Testcoin"
+
+# Path to Testcoind executable
+#TestcoinD_BIN="/usr/bin/Testcoind"
+
+# Nice value to run Testcoind under
+#TestcoinD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+TestcoinD_OPTS="-disablewallet"
+
